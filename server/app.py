@@ -4,7 +4,7 @@ from flask import Flask
 from wall.controller import index, index_api
 from auth.controller import auth
 
-env = dotenv_values(pathlib.Path(__file__).parent.parent.joinpath(".env").resolve())
+env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
 app = Flask(__name__)
 app.register_blueprint(index)
 app.register_blueprint(index_api)

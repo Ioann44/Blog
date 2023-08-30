@@ -1,6 +1,7 @@
 import flask
 from flask import Blueprint
 from flask import jsonify
+from . import service
 
 
 index = Blueprint("index", __name__)

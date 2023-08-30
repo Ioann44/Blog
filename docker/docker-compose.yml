@@ -1,0 +1,15 @@
+services:
+
+  blog_database:
+    env_file:
+      - ./.env
+    container_name: $DOCKER_BACKEND_DB_CONTAINER_NAME
+    image: postgres:${POSTGRES_VERSION}
+    environment:
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_USER: $DATABASE_USER
+      POSTGRES_DB: $DATABASE_DB
+    volumes:
+      - ${DATABASE_INIT_SCRIPTS}:/docker-entrypoint-initdb.d
+    ports:
+      - $DATABASE_PORT:5432
