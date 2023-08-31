@@ -1,4 +1,3 @@
-import json
 import pathlib
 from typing import List
 from sqlalchemy import create_engine

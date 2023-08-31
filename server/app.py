@@ -1,11 +1,15 @@
 from dotenv import dotenv_values
 import pathlib
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from wall.controller import index, index_api
 from auth.controller import auth
 
 env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
 app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = env["JWT_KEY"]
+jwt = JWTManager(app)
+
 app.register_blueprint(index)
 app.register_blueprint(index_api)
 app.register_blueprint(auth)

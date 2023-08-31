@@ -1,6 +1,5 @@
-from sqlalchemy import ARRAY, DateTime, create_engine, Column, Integer, String, func
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy import ARRAY, DateTime, Column, Integer, String, func
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):

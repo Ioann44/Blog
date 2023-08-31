@@ -22,7 +22,6 @@ def get_all():
         }
         for p in service.get_all()
     ]
-    return flask.Response(status=200)
 
 
 @index_api.route("/save", methods=["POST"])
@@ -48,7 +47,7 @@ def save():
         real_author_id = service.get_author_of_post(id)
         if real_author_id is None or real_author_id != author_id:
             # also prevents from creating with own id's and crashing later by autoincrement
-            return flask.Response("Not authorized to change this post", status=401)
+            return flask.Response("Not authorized to change this post", status=403)
         else:
             post_dict["id"] = id
 
@@ -75,7 +74,7 @@ def delete(id):
 
     real_author_id = service.get_author_of_post(id)
     if real_author_id is None or real_author_id != author_id:
-        return flask.Response("Not authorized to delet this post", status=401)
+        return flask.Response("Not authorized to delete this post", status=403)
     else:
         service.delete(id)
         return flask.Response("Post successfully deleted", status=200)
