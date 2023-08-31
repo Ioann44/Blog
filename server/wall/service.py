@@ -20,14 +20,26 @@ def get_all() -> List[entities.Post]:
         return session.query(entities.Post).order_by(entities.Post.id).all()
 
 
-# insert or update
-def save(post: entities.Post):
+def get_author_of_post(id: int) -> int | None:
     with Session() as session:
-        session.merge(post)
+        return session.query(entities.Post.author_id).filter_by(id=id).scalar()
+
+
+# insert or update
+def save(post: entities.Post) -> entities.Post | None:
+    with Session() as session:
+        merged_post = session.merge(post)
         session.commit()
+        return session.query(entities.Post).get(merged_post.id)
 
 
-def delete(id):
+def delete(id: int):
     with Session() as session:
         session.query(entities.Post).filter_by(id=id).delete()
         session.commit()
+
+
+# # delete all
+# with Session() as session:
+#     session.query(entities.Post).delete()
+#     session.commit()
