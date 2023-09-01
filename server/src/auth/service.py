@@ -5,14 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from dotenv import dotenv_values
 from . import entities
-
-env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
-db_url = env["DATABASE_URL"]
-assert db_url is not None, "DATABASE_URL is not defined"
-
-engine = create_engine(db_url)
-entities.init(engine)
-Session = sessionmaker(bind=engine)
+from ..common.base_class import Session
 
 
 def create_user(user: entities.User) -> Tuple[bool, int]:

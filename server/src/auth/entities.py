@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from ..common.base_class import Base
 
 
 class User(Base):
@@ -13,8 +11,4 @@ class User(Base):
     name = Column(String, nullable=False, unique=True)
     hashed_password = Column(String)
 
-    posts = relationship("Post", back_populates="author_id")
-
-
-def init(engine):
-    Base.metadata.create_all(engine)
+    posts = relationship("Post", back_populates="author")

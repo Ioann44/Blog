@@ -2,8 +2,8 @@ from dotenv import dotenv_values
 import pathlib
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from wall.controller import index, index_api
-from auth.controller import auth
+from src.wall.controller import index, index_api
+from src.auth.controller import auth
 
 env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
 app = Flask(__name__)

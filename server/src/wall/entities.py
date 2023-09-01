@@ -1,9 +1,7 @@
 from sqlalchemy import ARRAY, DateTime, Column, ForeignKey, Integer, String, func
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from ..common.base_class import Base
 
 
 class Post(Base):
@@ -18,7 +16,3 @@ class Post(Base):
     date = Column(DateTime(timezone=True), server_default=func.now())
 
     author = relationship("User", back_populates="posts")
-
-
-def init(engine):
-    Base.metadata.create_all(engine)
