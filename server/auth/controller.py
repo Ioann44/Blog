@@ -1,6 +1,7 @@
 from typing import Dict
 import flask
 from flask import Blueprint
+from flask_jwt_extended import create_access_token
 from passlib.hash import bcrypt
 from . import service
 
@@ -14,7 +15,7 @@ def create():
         service.entities.User(name=json["name"], hashed_password=bcrypt.hash(json["password"]))
     )
     if success:
-        return {"id": user_id}
+        return {"token": create_access_token(user_id)}
     else:
         return "Name already taken", 409
 
@@ -25,9 +26,13 @@ def login():
     if "name" in json and "password" in json:
         success, user = service.get_user(json["name"])
         if success and user and bcrypt.verify(json["password"], user.hashed_password):  # type: ignore
-            # return jwt with id
-            return user.id.__str__()
+            return {"token": create_access_token(user.id)}
         else:
             return "Name or password are incorrect", 401
     else:
         return "Name is not specified", 400
+
+
+@auth.route("/check_name/<string:name>")
+def get_name_availability(name: str):
+    return service.check_name_availability(name).__str__()

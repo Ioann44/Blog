@@ -39,4 +39,4 @@ def get_user(name: str) -> Tuple[bool, entities.User | None]:
 def check_name_availability(name: str) -> bool:
     with Session() as session:
         user = session.query(entities.User).filter_by(name=name).first()
-        return user is not None
+        return user is None

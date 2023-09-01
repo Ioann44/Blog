@@ -1,7 +1,8 @@
 from typing import Any, Dict
 import flask
-from flask import Blueprint
+from flask import Blueprint, request
 from flask import jsonify
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from . import service
 
 
@@ -11,10 +12,17 @@ index_api = Blueprint("index_api", __name__, url_prefix="/api")
 
 @index.route("/")
 def get_all():
+    access_token = request.headers.get("Authorization")
+    try:
+        author_id = get_jwt_identity()
+        # return values with likes
+    except Exception:
+        pass
+
     return [
         {
             "id": p.id,
-            "author_id": p.author_id,
+            "author": p.author.name,
             "theme": p.theme,
             "content": p.content,
             "likes": p.likes,
@@ -25,9 +33,10 @@ def get_all():
 
 
 @index_api.route("/save", methods=["POST"])
+@jwt_required()
 def save():
     json: Dict[str, Any] = flask.request.json or dict()
-    author_id = 1  # will be changed to jwt
+    author_id = get_jwt_identity()
     if not all([json.get("theme"), json.get("content")]):
         # extend to better description, if have time
         return flask.Response("Wrong data format, necessary field not specified or empty", status=400)
@@ -59,7 +68,7 @@ def save():
         return {
             "id": saved_post.id,
             # only id yet, will be changed soon to username
-            "author_id": saved_post.author_id,
+            "author": saved_post.author.name,
             "theme": saved_post.theme,
             "content": saved_post.content,
             "likes": saved_post.likes,
@@ -69,8 +78,9 @@ def save():
 
 
 @index_api.route("/delete/<int:id>", methods=["POST"])
+@jwt_required()
 def delete(id):
-    author_id = 1  # also change to jwt
+    author_id = get_jwt_identity()
 
     real_author_id = service.get_author_of_post(id)
     if real_author_id is None or real_author_id != author_id:
