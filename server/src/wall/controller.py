@@ -13,9 +13,9 @@ index_api = Blueprint("index_api", __name__, url_prefix="/api")
 @index.route("/")
 def get_all():
     access_token = request.headers.get("Authorization")
+    author_id = 0
     try:
         author_id = get_jwt_identity()
-        # return values with likes
     except Exception:
         pass
 
@@ -27,8 +27,9 @@ def get_all():
             "content": p.content,
             "likes": p.likes,
             "date": p.date,
+            "is_liked": is_liked,
         }
-        for p in service.get_all()
+        for p, is_liked in service.get_all(author_id)
     ]
 
 
@@ -64,27 +65,32 @@ def save():
     if saved_post is None:
         return flask.Response("Save failed", status=500)
     else:
-        # return flask.Response(
         return {
             "id": saved_post.id,
-            # only id yet, will be changed soon to username
             "author": saved_post.author.name,
             "theme": saved_post.theme,
             "content": saved_post.content,
             "likes": saved_post.likes,
             "date": saved_post.date,
         }
-    # )
 
 
-@index_api.route("/delete/<int:id>", methods=["POST"])
+@index_api.route("/delete/<int:post_id>", methods=["POST"])
 @jwt_required()
-def delete(id):
+def delete(post_id):
     author_id = get_jwt_identity()
 
-    real_author_id = service.get_author_of_post(id)
+    real_author_id = service.get_author_of_post(post_id)
     if real_author_id is None or real_author_id != author_id:
         return flask.Response("Not authorized to delete this post", status=403)
     else:
-        service.delete(id)
+        service.delete(post_id)
         return flask.Response("Post successfully deleted", status=200)
+
+
+@index_api.route("/change_like/<int:post_id>", methods=["POST"])
+@jwt_required()
+def change_like(post_id):
+    user_id = get_jwt_identity()
+    is_liked_now, likes = service.change_likes(user_id, post_id)
+    return {"is_liked": is_liked_now, "likes": likes}

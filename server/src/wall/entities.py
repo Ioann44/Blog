@@ -8,7 +8,6 @@ class Post(Base):
     __tablename__ = "posts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # make it foreign
     author_id = Column(Integer, ForeignKey("users.id"))
     theme = Column(String)
     content = Column(ARRAY(String))
@@ -16,3 +15,11 @@ class Post(Base):
     date = Column(DateTime(timezone=True), server_default=func.now())
 
     author = relationship("User", back_populates="posts")
+    authors_who_liked = relationship("User", secondary="likes", back_populates="liked_posts")
+
+
+class Like(Base):
+    __tablename__ = "likes"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), primary_key=True)

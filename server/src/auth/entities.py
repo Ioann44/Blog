@@ -12,3 +12,4 @@ class User(Base):
     hashed_password = Column(String)
 
     posts = relationship("Post", back_populates="author")
+    liked_posts = relationship("Post", secondary="likes", back_populates="authors_who_liked")

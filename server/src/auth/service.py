@@ -1,10 +1,7 @@
-import pathlib
 from typing import Tuple
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
-from dotenv import dotenv_values
 from . import entities
+
 from ..common.base_class import Session
 
 
