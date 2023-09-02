@@ -28,6 +28,7 @@ def get_all():
             "likes": p.likes,
             "date": p.date,
             "is_liked": is_liked,
+            # "files:" 
         }
         for p, is_liked in service.get_all(author_id)
     ]

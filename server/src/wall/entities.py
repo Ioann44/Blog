@@ -2,6 +2,8 @@ from sqlalchemy import ARRAY, DateTime, Column, ForeignKey, Integer, String, fun
 from sqlalchemy.orm import relationship
 
 from ..common.base_class import Base
+# from ..auth.entities import User
+# from ..file.entities import File
 
 
 class Post(Base):
@@ -16,6 +18,7 @@ class Post(Base):
 
     author = relationship("User", back_populates="posts")
     authors_who_liked = relationship("User", secondary="likes", back_populates="liked_posts")
+    files = relationship("File", back_populates="post")
 
 
 class Like(Base):

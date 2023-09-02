@@ -1,8 +1,8 @@
 from typing import List, Tuple
 from sqlalchemy import and_, exists
 from sqlalchemy.orm import joinedload
-from . import entities
 
+from . import entities
 from ..common.base_class import Session
 
 
@@ -13,7 +13,7 @@ def get_all(user_id: int = 0) -> List[Tuple[entities.Post, bool]]:
             .where(
                 and_(
                     entities.Post.id == entities.Like.post_id,
-                    entities.Post.author_id == entities.Like.user_id,
+                    entities.Like.user_id == user_id,
                 )
             )
             .label("like_exists")

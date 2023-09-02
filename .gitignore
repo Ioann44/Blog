@@ -2,3 +2,4 @@ side_info/
 python/
 __pycache__/
 .env
+server/uploads
