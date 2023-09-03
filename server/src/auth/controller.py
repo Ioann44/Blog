@@ -35,4 +35,4 @@ def login():
 
 @auth.route("/check_name/<string:name>")
 def get_name_availability(name: str):
-    return service.check_name_availability(name).__str__()
+    return "1" if service.check_name_availability(name) else "0"

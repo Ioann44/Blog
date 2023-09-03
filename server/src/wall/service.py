@@ -24,7 +24,7 @@ def get_all(user_id: int = 0) -> List[Tuple[entities.Post, bool]]:
         query_result = (
             session.query(entities.Post, like_exists)
             .options(joinedload(entities.Post.author), joinedload(entities.Post.files))
-            .order_by(entities.Post.id)
+            .order_by(entities.Post.id.desc())
             .all()
         )
 
