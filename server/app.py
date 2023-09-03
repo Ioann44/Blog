@@ -3,7 +3,8 @@ import pathlib
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
-from src.wall.controller import index, index_api
+from src.wall.client_controller import index
+from src.wall.api_controller import index_api
 from src.auth.controller import auth
 from src.file.controller import file
 
@@ -18,4 +19,4 @@ app.register_blueprint(auth)
 app.register_blueprint(file)
 
 if __name__ == "__main__":
-    app.run(port=int(env["PORT"] or 5000), debug=bool(env["DEBUG"]))
+    app.run(host="0.0.0.0", port=int(env["PORT"] or 5000), debug=bool(env["DEBUG"]))
