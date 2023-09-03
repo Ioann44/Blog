@@ -25,7 +25,7 @@ def upload_file():
 @file.route("/<string:name>")
 def get_file(name: str):
     if not service.check_file_exists(name):
-        return "File not exitst", 400
+        return "File not exists", 400
     else:
         directory = service.env["UPLOADS_RESOLVED_PATH"]
         assert directory is not None, "Unresolved uploads path"

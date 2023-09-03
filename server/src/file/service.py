@@ -39,7 +39,17 @@ def save_file(file) -> entities.File | None:
         print(e)
 
 
+# move function to different "export" file if needed more imports
+def delete_files(*filenames: str):
+    parent_path = env["UPLOADS_RESOLVED_PATH"]
+    assert parent_path is not None, "Unresolved uploads path"
+    for fname in filenames:
+        full_path_with_name = os.path.join(parent_path, fname)
+        os.remove(full_path_with_name)
+
+
 # must be no accessible from client and executes regularly
+# not deletes files yet
 def delete(id: int):
     with Session() as session:
         session.query(entities.File).filter_by(id=id).delete()
@@ -50,3 +60,9 @@ def check_file_exists(name: str) -> bool:
     with Session() as session:
         file = session.query(entities.File).filter_by(name=name).first()
         return file is not None
+
+
+# # delete all
+# with Session() as session:
+#     session.query(entities.File).delete()
+#     session.commit()

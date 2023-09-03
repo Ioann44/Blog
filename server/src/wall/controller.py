@@ -28,7 +28,7 @@ def get_all():
             "likes": p.likes,
             "date": p.date,
             "is_liked": is_liked,
-            # "files:" 
+            "files": [file.name for file in p.files],
         }
         for p, is_liked in service.get_all(author_id)
     ]
@@ -65,15 +65,24 @@ def save():
     saved_post = service.save(service.entities.Post(**post_dict))
     if saved_post is None:
         return flask.Response("Save failed", status=500)
-    else:
-        return {
-            "id": saved_post.id,
-            "author": saved_post.author.name,
-            "theme": saved_post.theme,
-            "content": saved_post.content,
-            "likes": saved_post.likes,
-            "date": saved_post.date,
-        }
+
+    # change files
+    res_filenames = None
+    if "filenames" in json:
+        try:
+            res_filenames = service.change_connected_post(json["filenames"], saved_post.id)  # type: ignore
+        except:
+            return flask.Response("Post is saved, but files not added: wrong filenames", status=400)
+
+    return {
+        "id": saved_post.id,
+        "author": saved_post.author.name,
+        "theme": saved_post.theme,
+        "content": saved_post.content,
+        "likes": saved_post.likes,
+        "date": saved_post.date,
+        "files": res_filenames or [],
+    }
 
 
 @index_api.route("/delete/<int:post_id>", methods=["POST"])
