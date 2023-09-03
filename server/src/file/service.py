@@ -1,5 +1,6 @@
 import os
 import uuid
+from sqlalchemy import event
 from sqlalchemy.orm import joinedload
 
 from . import entities
@@ -39,6 +40,12 @@ def save_file(file) -> entities.File | None:
         print(e)
 
 
+# doesn't work with rollback after failed inserting, so, manually deleting still needed in this case
+@event.listens_for(entities.File, "before_delete")
+def delete_files_listened(mapper, connection, target):
+    delete_files(target.name)
+
+
 # move function to different "export" file if needed more imports
 def delete_files(*filenames: str):
     parent_path = env["UPLOADS_RESOLVED_PATH"]
@@ -46,14 +53,6 @@ def delete_files(*filenames: str):
     for fname in filenames:
         full_path_with_name = os.path.join(parent_path, fname)
         os.remove(full_path_with_name)
-
-
-# must be no accessible from client and executes regularly
-# not deletes files yet
-def delete(id: int):
-    with Session() as session:
-        session.query(entities.File).filter_by(id=id).delete()
-        session.commit()
 
 
 def check_file_exists(name: str) -> bool:

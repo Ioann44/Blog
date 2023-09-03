@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from sqlalchemy import and_, exists
+from sqlalchemy import and_, exists, or_
 from sqlalchemy.orm import joinedload
 
 from . import entities
@@ -51,8 +51,13 @@ def save(post: entities.Post) -> entities.Post | None:
 
 def delete(id: int):
     with Session() as session:
-        session.query(entities.Post).filter_by(id=id).delete()
-        session.commit()
+        post: entities.Post | None = session.query(entities.Post).get(id)
+        if post is not None:
+            # cascade deletion doesn't work, this is an option how to deal with it
+            for file in post.files:
+                session.delete(file)
+            session.delete(post)
+            session.commit()
 
 
 def change_likes(user_id: int, post_id: int) -> Tuple[bool, int]:
@@ -86,15 +91,18 @@ def change_connected_post(filenames: List[str], post_id: int) -> List[str] | Non
             for fname in filenames:
                 if fname not in current_filenames:
                     existing_file: file_entities.File | None = (
-                        session.query(file_entities.File).filter_by(name=fname)
-                        # .filter(file_entities.File.post_id.in_([None, post_id]))
+                        session.query(file_entities.File)
+                        .filter_by(name=fname)
+                        .filter(
+                            or_(file_entities.File.post_id == None, file_entities.File.post_id == post_id)
+                        )
                         .first()
                     )
                     assert existing_file, "Available file not exists"
                     post.files.append(existing_file)
 
             session.commit()
-            file_service.delete_files(*[file.name for file in files_to_remove])
+            # file_service.delete_files(*[file.name for file in files_to_remove]) # not needed because of session.delete(file)
             return [file.name for file in post.files]
 
         except Exception as e:

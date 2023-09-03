@@ -2,6 +2,7 @@ from sqlalchemy import ARRAY, DateTime, Column, ForeignKey, Integer, String, fun
 from sqlalchemy.orm import relationship
 
 from ..common.base_class import Base
+
 # from ..auth.entities import User
 # from ..file.entities import File
 
