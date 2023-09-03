@@ -1,3 +1,4 @@
+
 // Функция открытия модального окна
 function openModal() {
 	document.getElementById("authModal").style.display = "block";
@@ -26,12 +27,12 @@ function toggleForms() {
  * @param {string} url
  * @param {content} init {method: string, headers: {Content-Type: string}, body: string}
  * @param {function} callback 
- */
+*/
 function fetch_template(url, init, callback) {
 	fetch(url, init).then(
 		response => {
 			if (!response.ok) {
-				
+
 			}
 		}
 	)
@@ -104,8 +105,31 @@ function checkNameAvailability() {
 		})
 }
 
+// Функция вызова уведомления
+function showTemporaryNotification(message, duration) {
+	const notification = document.createElement('div');
+	notification.textContent = message;
+	notification.classList.add('notification');
+
+	notificationContainer.appendChild(notification);
+	notification.style.animation = 'slide-down 0.5s ease-in-out forwards, fade-out 0.5s ease-in-out 2s forwards';
+
+	setTimeout(() => {
+		notification.remove()
+	}, duration);
+}
+
 // Добавьте событие на изменение поля логина при загрузке страницы
 window.onload = function () {
 	var registerNameInput = document.getElementById("registerName");
 	registerNameInput.addEventListener("input", checkNameAvailability);
+
+	// Уведомления
+	const showNotificationButton = document.getElementById('showNotification');
+	const notificationContainer = document.getElementById('notificationContainer');
+	// Пример вызова уведомления
+	showNotificationButton.addEventListener('click', () => {
+		const notificationText = 'Это ваш текст уведомления ';
+		showTemporaryNotification(notificationText, 3000);
+	});
 };

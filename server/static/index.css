@@ -84,3 +84,41 @@ body {
 	font-size: 24px;
 	color: #888;
 }
+
+.notification {
+	position: fixed;
+	top: -60px;
+	left: 0;
+	right: 0;
+	background-color: #333;
+	color: white;
+	text-align: center;
+	padding: 10px;
+	opacity: 0;
+	transition: top 0.5s ease-in-out, opacity 0.5s ease-in-out;
+	z-index: 2;
+}
+
+@keyframes slide-down {
+	from {
+		top: -60px;
+		opacity: 0;
+	}
+
+	to {
+		top: 0;
+		opacity: 1;
+	}
+}
+
+@keyframes fade-out {
+	from {
+		top: 0;
+		opacity: 1;
+	}
+
+	to {
+		top: -60px;
+		opacity: 0;
+	}
+}

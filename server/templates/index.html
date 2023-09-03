@@ -12,6 +12,8 @@
 </head>
 
 <body>
+
+    <!-- Модальное окно авторизации -->
     <div id="authModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -53,8 +55,11 @@
         </div>
     </div>
 
+    <!-- Контейнер для уведомлений -->
+    <div id="notificationContainer"></div>
 
     <button onclick="openModal()">Войти / Зарегистрироваться</button>
+    <button id="showNotification" style="margin-top: 20vh">Показать уведомление</button>
 
     <h1>Блог</h1>
     {% for post in posts %}
