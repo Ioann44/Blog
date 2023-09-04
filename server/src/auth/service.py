@@ -30,3 +30,12 @@ def check_name_availability(name: str) -> bool:
     with Session() as session:
         user = session.query(entities.User).filter_by(name=name).first()
         return user is None
+
+
+def get_name(id: int) -> str | None:
+    with Session() as session:
+        user = session.query(entities.User).get(id)
+        if user:
+            return user.name
+        else:
+            return None

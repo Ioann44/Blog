@@ -50,11 +50,13 @@
         <div>
             <!-- Текстовое поле для имени текущего пользователя -->
             <span class="current-user">
-                <input type="text" id="currentUser" readonly>
+                <input type="text" id="currentUser" readonly value="{{user_name}}" {% if not authorized
+                    %}style="display: none;" {% else %}style="display: inline;" {% endif %}>
             </span>
             <!-- Кнопка "Войти / Зарегистрироваться" -->
             <span class="auth-button">
-                <button onclick="openModal()">Войти / Зарегистрироваться</button>
+                <button onclick="{% if authorized %}unlogin(){% else %}openModal(){% endif %}">{% if authorized
+                    %}Выйти{% else %}Войти / Зарегистрироваться{% endif %}</button>
             </span>
         </div>
     </div>
@@ -67,8 +69,7 @@
             </div>
             <div class="like-indicator">
                 <i class="like-heart {% if post['is_liked'] %}liked{% else %}not-liked{% endif %}">❤</i>
-                <p>Is liked {{ post["is_liked"] }}</p>
-                <p>Лайки: {{ post["likes"] }}</p>
+                <p>{{ post["likes"] }}</p>
             </div>
         </div>
         <p>Содержание поста:</p>

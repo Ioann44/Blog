@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from . import service
+from ..auth import service as auth_service
 
 index = Blueprint("index", __name__)
 
@@ -21,7 +22,17 @@ def get_all():
             author_id = get_jwt_identity()
     except Exception:
         pass
-    print(f"Author id: {author_id}")
+
+    authorized = bool(author_id)
+    user_name = None
+
+    if authorized:
+        user_name = auth_service.get_name(author_id)
+        if user_name is None:  # Authors can't be deleted, just in case
+            authorized = False
+        print(f"Author id: {author_id}, name: {user_name}")
+    else:
+        print(f"Not authorized")
 
     return render_template(
         "index_body.html",
@@ -38,4 +49,6 @@ def get_all():
             }
             for p, is_liked in service.get_all(author_id)
         ],
+        authorized=authorized,
+        user_name=user_name,
     )

@@ -96,10 +96,18 @@ function register() {
 
 }
 
-function updatePageOnAutentificationChange() {
+function unlogin() {
+	updatePageOnAutentificationChange(false);
+}
+
+function updatePageOnAutentificationChange(loginned = true) {
 	// showTemporaryNotification(`Добро пожаловать, ${loginName}`)
 	closeModal();
-	setCookie('authToken', authToken, 7);
+	if (loginned) {
+		setCookie('authToken', authToken, 7);
+	} else {
+		deleteCookie('authToken');
+	}
 	window.location.replace('/');
 }
 
