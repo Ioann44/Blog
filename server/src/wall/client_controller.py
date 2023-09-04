@@ -7,6 +7,11 @@ index = Blueprint("index", __name__)
 
 
 @index.route("/")
+def get_redirection_page():
+    return render_template("redirect.html")
+
+
+@index.route("/index")
 def get_all():
     access_token = request.headers.get("Authorization")
     author_id = 0
@@ -16,7 +21,7 @@ def get_all():
         pass
 
     return render_template(
-        "index.html",
+        "index_body.html",
         posts=[
             {
                 "id": p.id,

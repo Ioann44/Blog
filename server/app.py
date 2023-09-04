@@ -1,7 +1,9 @@
 from dotenv import dotenv_values
 import pathlib
+
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from src.wall.client_controller import index
 from src.wall.api_controller import index_api
@@ -12,6 +14,7 @@ env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env")
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = env["JWT_KEY"]
 jwt = JWTManager(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # acceptable for single server application
 
 app.register_blueprint(index)
 app.register_blueprint(index_api)

@@ -1,3 +1,4 @@
+authToken = ""
 
 // Функция открытия модального окна
 function openModal() {
@@ -25,17 +26,27 @@ function toggleForms() {
 /**
  * Fetch cover for suppressing code amount
  * @param {string} url
+ * @param {boolean} respIsJson
  * @param {content} init {method: string, headers: {Content-Type: string}, body: string}
  * @param {function} callback 
 */
-function fetch_template(url, init, callback) {
+function fetch_template(url, respIsJson, init, callback) {
 	fetch(url, init).then(
 		response => {
 			if (!response.ok) {
-
+				return response.text().then(errorMessage => {
+					throw new Error(errorMessage);
+				});
+			}
+			if (respIsJson) {
+				return response.json();
+			} else {
+				return response.text();
 			}
 		}
-	)
+	).then(callback).catch(errorMessage => {
+		showTemporaryNotification(errorMessage);
+	})
 }
 
 // Функция для отправки запроса на авторизацию
@@ -43,24 +54,19 @@ function login() {
 	var loginName = document.getElementById("loginName").value;
 	var loginPassword = document.getElementById("loginPassword").value;
 
-	fetch('https://example.com/api/endpoint', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
+	fetch_template('/auth/login', true,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: loginName, password: loginPassword })
 		},
-		body: JSON.stringify({ name: loginName, password: loginPassword })
-	}).then(response => {
-		if (!response.ok) {
-			return response.text()
-		}
-		return response.json();
-	}).then(data => {
-		console.log(data);
-	}).catch(error => {
-		console.error('There was a problem with the fetch operation:', error);
-	});
+		data => {
+			authToken = data.token;
+		});
 
-	closeModal();
+	updatePageOnAutentificationChange();
 }
 
 // Функция для отправки запроса на регистрацию с проверкой пароля
@@ -71,15 +77,30 @@ function register() {
 
 	// Проверьте, совпадают ли пароли
 	if (registerPassword !== confirmPassword) {
-		alert("Пароли не совпадают");
+		showTemporaryNotification("Пароли не совпадают");
 		return;
 	}
 
-	// Отправьте запрос на /auth/create с данными и обработайте jwt_token
-	// Сохраните jwt_token в cookies
-	// Закройте модальное окно
-	// Обновите страницу или выполните другие действия при регистрации
+	fetch_template('/auth/register', true,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: registerName, password: registerPassword })
+		},
+		data => {
+			authToken = data.token;
+		});
+
+	updatePageOnAutentificationChange()
+}
+
+function updatePageOnAutentificationChange() {
+	// showTemporaryNotification(`Добро пожаловать, ${loginName}`)
 	closeModal();
+	setCookie('authToken', authToken, 7);
+	window.location.replace('/');
 }
 
 // Функция для проверки доступности имени при изменении поля логина
@@ -87,26 +108,23 @@ function checkNameAvailability() {
 	var registerName = document.getElementById("registerName").value;
 	var nameAvailability = document.getElementById("nameAvailability");
 
+	if (!registerName) {
+		return;
+	}
+
 	const url = `/auth/check_name/${registerName}`;
 
-	fetch(url)
-		.then(response => {
-			if (response.ok) {
-				return response.json();
-			} else {
-				throw new Error('Ошибка при выполнении запроса');
-			}
-		}).then(data => {
-			if (data) {
-				nameAvailability.innerHTML = "Имя доступно";
-			} else {
-				nameAvailability.innerHTML = "Имя уже занято";
-			}
-		})
+	fetch_template(url, false, { method: "GET" }, data => {
+		if (data) {
+			nameAvailability.innerHTML = "Имя доступно";
+		} else {
+			nameAvailability.innerHTML = "Имя уже занято";
+		}
+	})
 }
 
 // Функция вызова уведомления
-function showTemporaryNotification(message, duration) {
+function showTemporaryNotification(message, duration = 3000) {
 	const notification = document.createElement('div');
 	notification.textContent = message;
 	notification.classList.add('notification');
@@ -119,17 +137,46 @@ function showTemporaryNotification(message, duration) {
 	}, duration);
 }
 
-// Добавьте событие на изменение поля логина при загрузке страницы
-window.onload = function () {
+// Функция сохранения cookie
+function setCookie(name, value, days) {
+	const expires = new Date();
+	expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+	document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
+// Функция загрузки cookie
+function getCookie(name) {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2) {
+		return parts.pop().split(';').shift();
+	}
+	return null;
+}
+
+function changeBody() {
+	fetch('/index',
+		{
+			method: 'GET',
+			headers: {
+				'Authorization': 'Bearer ' + getCookie('authToken')
+			}
+		})
+		.then(response => response.text())
+		.then(html => {
+			document.body.innerHTML = html;
+		})
+		.catch(error => {
+			console.error('Ошибка при загрузке HTML-страницы:', error);
+		});
+}
+
+function init() {
 	var registerNameInput = document.getElementById("registerName");
 	registerNameInput.addEventListener("input", checkNameAvailability);
 
 	// Уведомления
-	const showNotificationButton = document.getElementById('showNotification');
 	const notificationContainer = document.getElementById('notificationContainer');
-	// Пример вызова уведомления
-	showNotificationButton.addEventListener('click', () => {
-		const notificationText = 'Это ваш текст уведомления ';
-		showTemporaryNotification(notificationText, 3000);
-	});
-};
+
+	authToken = getCookie('authToken');
+}

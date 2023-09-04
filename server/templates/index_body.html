@@ -1,18 +1,4 @@
-<!-- templates/index.html -->
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Блог</title>
-    <link rel="stylesheet" href="static/index.css">
-    <script src="static/index.js"></script>
-</head>
-
 <body>
-
     <!-- Модальное окно авторизации -->
     <div id="authModal" class="modal">
         <div class="modal-content">
@@ -35,10 +21,10 @@
                         <table>
                             <tr>
                                 <td><input type="text" id="registerName" placeholder="Логин" required></td>
-                                <td><input type="password" id="registerPassword" placeholder="Пароль" required></td>
+                                <td><span id="nameAvailability"></span></td>
                             </tr>
                             <tr>
-                                <td><span id="nameAvailability"></span></td>
+                                <td><input type="password" id="registerPassword" placeholder="Пароль" required></td>
                                 <td><input type="password" id="confirmPassword" placeholder="Повторите пароль" required>
                                 </td>
                             </tr>
@@ -59,7 +45,7 @@
     <div id="notificationContainer"></div>
 
     <button onclick="openModal()">Войти / Зарегистрироваться</button>
-    <button id="showNotification" style="margin-top: 20vh">Показать уведомление</button>
+    <!-- <button id="showNotification" style="margin-top: 20vh">Показать уведомление</button> -->
 
     <h1>Блог</h1>
     {% for post in posts %}
@@ -70,7 +56,8 @@
                 <p class="post-meta">Автор: {{ post["author"] }} | Дата создания: {{ post["date"] }}</p>
             </div>
             <div class="like-indicator">
-                <i class="like-heart {% if post[" is_liked"] %}liked{% else %}not-liked{% endif %}">❤️</i>
+                <i class="like-heart {% if post[" is_liked"] %}liked{% else %}not-liked{% endif %}">❤</i>
+                <p>Is liked {{ post["is_liked"] }}</p>
                 <p>Лайки: {{ post["likes"] }}</p>
             </div>
         </div>
@@ -84,5 +71,3 @@
     </div>
     {% endfor %}
 </body>
-
-</html>
