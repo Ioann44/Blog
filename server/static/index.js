@@ -64,9 +64,9 @@ function login() {
 		},
 		data => {
 			authToken = data.token;
+			updatePageOnAutentificationChange();
 		});
 
-	updatePageOnAutentificationChange();
 }
 
 // Функция для отправки запроса на регистрацию с проверкой пароля
@@ -91,9 +91,9 @@ function register() {
 		},
 		data => {
 			authToken = data.token;
+			updatePageOnAutentificationChange()
 		});
 
-	updatePageOnAutentificationChange()
 }
 
 function updatePageOnAutentificationChange() {
@@ -154,20 +154,30 @@ function getCookie(name) {
 	return null;
 }
 
-function changeBody() {
-	fetch('/index',
-		{
-			method: 'GET',
-			headers: {
-				'Authorization': 'Bearer ' + getCookie('authToken')
+// Функция удаления cookie
+function deleteCookie(name) {
+	var pastDate = new Date(0);
+	document.cookie = `${name}=;expires=${pastDate.toUTCString()};path=/`;
+}
+
+function changeBody(authorization = true) {
+	var init = { method: 'GET' };
+	if (authorization) {
+		init = { ...init, headers: { 'Authorization': `Bearer ${getCookie('authToken')}` } }
+	}
+	fetch('/index', init)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Error with loading index page');
 			}
+			return response.text();
 		})
-		.then(response => response.text())
 		.then(html => {
 			document.body.innerHTML = html;
+			setTimeout(init, 1000);
 		})
 		.catch(error => {
-			console.error('Ошибка при загрузке HTML-страницы:', error);
+			changeBody(false);
 		});
 }
 

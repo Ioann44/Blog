@@ -44,10 +44,20 @@
     <!-- Контейнер для уведомлений -->
     <div id="notificationContainer"></div>
 
-    <button onclick="openModal()">Войти / Зарегистрироваться</button>
-    <!-- <button id="showNotification" style="margin-top: 20vh">Показать уведомление</button> -->
 
-    <h1>Блог</h1>
+    <div class="header-and-authorization">
+        <h1>Блог</h1>
+        <div>
+            <!-- Текстовое поле для имени текущего пользователя -->
+            <span class="current-user">
+                <input type="text" id="currentUser" readonly>
+            </span>
+            <!-- Кнопка "Войти / Зарегистрироваться" -->
+            <span class="auth-button">
+                <button onclick="openModal()">Войти / Зарегистрироваться</button>
+            </span>
+        </div>
+    </div>
     {% for post in posts %}
     <div class="post">
         <div class="post-header">
@@ -56,7 +66,7 @@
                 <p class="post-meta">Автор: {{ post["author"] }} | Дата создания: {{ post["date"] }}</p>
             </div>
             <div class="like-indicator">
-                <i class="like-heart {% if post[" is_liked"] %}liked{% else %}not-liked{% endif %}">❤</i>
+                <i class="like-heart {% if post['is_liked'] %}liked{% else %}not-liked{% endif %}">❤</i>
                 <p>Is liked {{ post["is_liked"] }}</p>
                 <p>Лайки: {{ post["likes"] }}</p>
             </div>

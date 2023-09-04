@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from . import service
 
@@ -12,13 +12,16 @@ def get_redirection_page():
 
 
 @index.route("/index")
+@jwt_required(optional=True)
 def get_all():
     access_token = request.headers.get("Authorization")
     author_id = 0
     try:
-        author_id = get_jwt_identity()
+        if access_token:
+            author_id = get_jwt_identity()
     except Exception:
         pass
+    print(f"Author id: {author_id}")
 
     return render_template(
         "index_body.html",

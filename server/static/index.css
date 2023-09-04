@@ -85,6 +85,37 @@ body {
 	color: #888;
 }
 
+/* Стили для блока, содержащего h1 и div */
+.header-and-authorization {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	/* Центрирование элементов по вертикали */
+}
+
+/* Стили для кнопки "Войти / Зарегистрироваться" */
+.auth-button button {
+	background-color: #333;
+	color: #fff;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+/* Стили для текстового поля с именем текущего пользователя */
+.current-user input {
+	background-color: #333;
+	color: #fff;
+	padding: 10px;
+	border: none;
+	border-radius: 5px;
+	font-size: 16px;
+}
+
+
+
 .notification {
 	position: fixed;
 	top: -60px;
