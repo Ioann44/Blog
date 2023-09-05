@@ -41,6 +41,30 @@
         </div>
     </div>
 
+    <!-- Модальное окно для редактирования поста -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Редактировать пост</h2>
+            <form id="editPostForm">
+                <label for="editPostTheme">Тема:</label>
+                <input type="text" id="editPostTheme" required><br>
+
+                <label for="editPostContent">Основной текст:</label>
+                <textarea id="editPostContent" rows="4" required></textarea><br>
+
+                <label for="editFileInput">Выберите файлы:</label>
+                <input type="file" id="editFileInput" multiple><br>
+
+                <!-- Добавьте место для отображения выбранных файлов -->
+                <div id="editFileList" class="file-list"></div>
+
+                <button type="button" id="saveEditButton">Сохранить</button>
+                <button type="button" id="cancelEditButton" onclick="closeEditModal()">Отмена</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Контейнер для уведомлений -->
     <div id="notificationContainer"></div>
 
@@ -71,7 +95,7 @@
             <textarea id="postContent" placeholder="Основной текст" required></textarea>
             <input type="file" id="fileInput" multiple>
             <div id="fileList"></div>
-            <button type="button" onclick="submitPost()">Отправить</button>
+            <button type="button" onclick="createPost()">Отправить</button>
         </form>
         <div id="fileList" class="file-list"></div>
     </div>
@@ -90,9 +114,11 @@
                 <p class="like-count">{{ post["likes"] }}</p>
             </div>
         </div>
-        {% for line in post["content"] %}
-        <p>{{ line }}</p>
-        {% endfor %}
+        <div class="post-content">
+            {% for line in post["content"] %}
+            <p>{{ line }}</p>
+            {% endfor %}
+        </div>
         <div>
             {% for file_url in post["files"] %}
             <img src="{{ file_url }}" alt="Изображение поста">
@@ -100,6 +126,7 @@
         </div>
         {% if user_name == post['author'] %}
         <button class="delete-post" onclick="confirmDelete({{ post['id'] }})">❌ Удалить пост</button>
+        <button class="edit-post" onclick="editPost({{ post['id'] }})">✏️ Редактировать</button>
         {% endif %}
     </div>
     {% endfor %}

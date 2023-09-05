@@ -13,6 +13,7 @@ from src.file.controller import file
 env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = env["JWT_KEY"]
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(env["JWT_ACCESS_TOKEN_EXPIRES"] or 900)
 jwt = JWTManager(app)
 CORS(app, resources={r"/*": {"origins": "*"}})  # acceptable for single server application
 

@@ -170,62 +170,53 @@ function toggleLike(postId) {
 
 // Функция для добавления выбранных файлов и их превью в список файлов
 function handleFiles() {
-    const fileList = document.getElementById("fileList");
-    fileList.innerHTML = ""; // Очищаем список файлов
-    selectedFiles = []; // Очищаем массив выбранных файлов
+	const fileList = document.getElementById("fileList");
+	fileList.innerHTML = ""; // Очищаем список файлов
+	selectedFiles = []; // Очищаем массив выбранных файлов
 
-    const fileInput = document.getElementById("fileInput");
-    const files = fileInput.files;
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        selectedFiles.push(file); // Добавляем файл в массив выбранных файлов
-
-        const fileItem = document.createElement("div");
-        fileItem.classList.add("file-preview");
-
-        const fileImage = document.createElement("img");
-        fileImage.src = URL.createObjectURL(file);
-
-        const fileInfo = document.createElement("div");
-        fileInfo.classList.add("file-info");
-
-        const fileName = document.createElement("p");
-        fileName.classList.add("file-name");
-        fileName.textContent = file.name;
-
-        const removeButton = document.createElement("button");
-        removeButton.textContent = "Удалить";
-		removeButton.style.display = "none";
-        removeButton.addEventListener("click", () => {
-            // Удаляем файл из массива выбранных файлов
-            selectedFiles.splice(selectedFiles.indexOf(file), 1);
-
-            // Удаляем файл из списка в HTML
-            fileList.removeChild(fileItem);
-
-            // Обновляем счетчик файлов на странице
-            updateFileCounter();
-        });
-
-        fileInfo.appendChild(fileName);
-        fileItem.appendChild(fileImage);
-        fileItem.appendChild(fileInfo);
-        fileItem.appendChild(removeButton);
-        fileList.appendChild(fileItem);
-    }
-}
-
-// Функция для отправки поста
-function submitPost(id = 0) {
-	const postTheme = document.getElementById("postTheme").value;
-	const postContent = document.getElementById("postContent").value;
-
-	// Получите выбранные файлы и обработайте их по необходимости
 	const fileInput = document.getElementById("fileInput");
 	const files = fileInput.files;
 
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
+		selectedFiles.push(file); // Добавляем файл в массив выбранных файлов
 
+		const fileItem = document.createElement("div");
+		fileItem.classList.add("file-preview");
+
+		const fileImage = document.createElement("img");
+		fileImage.src = URL.createObjectURL(file);
+
+		const fileInfo = document.createElement("div");
+		fileInfo.classList.add("file-info");
+
+		const fileName = document.createElement("p");
+		fileName.classList.add("file-name");
+		fileName.textContent = file.name;
+
+		const removeButton = document.createElement("button");
+		removeButton.textContent = "Удалить";
+		removeButton.style.display = "none";
+		removeButton.addEventListener("click", () => {
+			// Удаляем файл из массива выбранных файлов
+			selectedFiles.splice(selectedFiles.indexOf(file), 1);
+
+			// Удаляем файл из списка в HTML
+			fileList.removeChild(fileItem);
+
+			// Обновляем счетчик файлов на странице
+			updateFileCounter();
+		});
+
+		fileInfo.appendChild(fileName);
+		fileItem.appendChild(fileImage);
+		fileItem.appendChild(fileInfo);
+		fileItem.appendChild(removeButton);
+		fileList.appendChild(fileItem);
+	}
+}
+
+function uploadPost(postTheme, postContent, files, id = 0) {
 	if (postTheme.trim() === "") {
 		showTemporaryNotification("Тема не должна быть пустой");
 		return;
@@ -235,7 +226,6 @@ function submitPost(id = 0) {
 		showTemporaryNotification("Содержимое поста не может быть пустым");
 		return;
 	}
-
 
 	var promices = [];
 	for (var i = 0; i < files.length; i++) {
@@ -288,6 +278,96 @@ function submitPost(id = 0) {
 				location.reload();
 			});
 	})
+}
+
+// Функция для отправки поста
+function createPost() {
+	const postTheme = document.getElementById("postTheme").value;
+	const postContent = document.getElementById("postContent").value;
+
+	// Получите выбранные файлы и обработайте их по необходимости
+	const fileInput = document.getElementById("fileInput");
+	const files = fileInput.files;
+
+	uploadPost(postTheme, postContent, files);
+}
+
+function editPost(postId) {
+	var editModal = document.getElementById("editModal");
+	editModal.style.display = "block";
+	document.getElementById("editFileList").innerHTML = "";
+
+	var post = document.getElementById(`post-${postId}`);
+
+	document.getElementById("editPostTheme").value = post.getElementsByClassName("post-title")[0].textContent;
+
+	var contentArray = [];
+	var postContentElement = post.getElementsByClassName("post-content")[0];
+	// Перебрать все элементы <p> внутри "post-content"
+	console.log(postContentElement);
+	var paragraphElements = postContentElement.getElementsByTagName('p');
+	for (const paragraph of paragraphElements) {
+		// Извлечь текст из элемента <p> и добавить его в массив
+		contentArray.push(paragraph.textContent);
+	}
+	document.getElementById("editPostContent").value = contentArray.join("\n");
+	
+	// Обработчик изменения файла для input type="file"
+	document.getElementById("editFileInput").addEventListener("change", function () {
+		var fileInput = document.getElementById("editFileInput");
+		var fileList = document.getElementById("editFileList");
+		
+		fileList.innerHTML = "";
+
+		for (var i = 0; i < fileInput.files.length; i++) {
+			var file = fileInput.files[i];
+
+			// Создайте элемент для отображения выбранных файлов
+			var filePreview = document.createElement("div");
+			filePreview.className = "file-preview";
+
+			var fileImage = document.createElement("img");
+			fileImage.src = URL.createObjectURL(file);
+			filePreview.appendChild(fileImage);
+
+			var fileInfo = document.createElement("div");
+			fileInfo.className = "file-info";
+
+			var fileName = document.createElement("p");
+			fileName.className = "file-name";
+			fileName.textContent = file.name;
+			fileInfo.appendChild(fileName);
+
+			filePreview.appendChild(fileInfo);
+			fileList.appendChild(filePreview);
+		}
+	});
+
+	document.getElementById("saveEditButton").onclick = function () {
+		var updatedTheme = document.getElementById("editPostTheme").value;
+		var updatedContent = document.getElementById("editPostContent").value;
+
+		// Получите список выбранных файлов
+		var selectedFiles = document.getElementById("editFileInput").files;
+
+		// Выполните логику обновления данных на сервере и закройте модальное окно
+		uploadPost(updatedTheme, updatedContent, selectedFiles, postId);
+	};
+}
+
+function closeEditModal() {
+	var editModal = document.getElementById("editModal");
+	editModal.style.display = "none";
+
+	// Очистите поля формы редактирования поста
+	document.getElementById("editPostTheme").value = "";
+	document.getElementById("editPostContent").value = "";
+
+	// Очистите отображение выбранных файлов и сбросьте input type="file"
+	var fileInput = document.getElementById("editFileInput");
+	fileInput.value = ""; // Это сбросит выбранные файлы
+	var fileList = document.getElementById("editFileList");
+	fileList.innerHTML = "";
 }
 
 function confirmDelete(postId) {
