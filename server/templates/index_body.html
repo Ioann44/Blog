@@ -61,15 +61,16 @@
         </div>
     </div>
     {% for post in posts %}
-    <div class="post">
+    <div id="post-{{post['id']}}" class="post">
         <div class="post-header">
             <div>
                 <h2 class="post-title">{{ post["theme"] }}</h2>
                 <p class="post-meta">Автор: {{ post["author"] }} | Дата создания: {{ post["date"] }}</p>
             </div>
             <div class="like-indicator">
-                <i class="like-heart {% if post['is_liked'] %}liked{% else %}not-liked{% endif %}">❤</i>
-                <p>{{ post["likes"] }}</p>
+                <button class="like-heart {% if post['is_liked'] %}liked{% else %}not-liked{% endif %}"
+                    onclick="toggleLike({{ post['id'] }})">❤</button>
+                <p class="like-count">{{ post["likes"] }}</p>
             </div>
         </div>
         <p>Содержание поста:</p>

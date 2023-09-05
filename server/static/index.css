@@ -41,7 +41,13 @@ body {
 }
 
 .like-heart {
-	margin-right: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 0;
+    outline: none; /* Удалить контур фокуса, если необходимо */
+    color: inherit; /* Наследовать цвет текста от родительского элемента */
 }
 
 .liked {

@@ -29,8 +29,9 @@ function toggleForms() {
  * @param {boolean} respIsJson
  * @param {content} init {method: string, headers: {Content-Type: string}, body: string}
  * @param {function} callback 
+ * @param {string} err_message replaces error message if specified
 */
-function fetch_template(url, respIsJson, init, callback) {
+function fetch_template(url, respIsJson, init, callback, err_message = null) {
 	fetch(url, init).then(
 		response => {
 			if (!response.ok) {
@@ -45,7 +46,11 @@ function fetch_template(url, respIsJson, init, callback) {
 			}
 		}
 	).then(callback).catch(errorMessage => {
-		showTemporaryNotification(errorMessage);
+		if (err_message === null) {
+			showTemporaryNotification(errorMessage);
+		} else {
+			showTemporaryNotification(err_message);
+		}
 	})
 }
 
@@ -131,6 +136,39 @@ function checkNameAvailability() {
 	})
 }
 
+function toggleLike(postId) {
+	if (!authToken) {
+		showTemporaryNotification("Для взаимодействия с лайками нужно авторизоваться");
+		return;
+	}
+	fetch_template(`/api/change_like/${postId}`, true,
+		{
+			method: "POST",
+			headers: {
+				"Authorization": `Bearer ${authToken}`
+			}
+		},
+		data => {
+			var postElement = document.getElementById("post-" + postId);
+			if (postElement) {
+				var likeButton = postElement.querySelector(".like-heart");
+				likeButton.classList.remove("liked");
+				likeButton.classList.remove("not-liked");
+
+				if (data.is_liked) {
+					likeButton.classList.add("liked");
+				} else {
+					likeButton.classList.add("not-liked");
+				}
+				var likeCount = postElement.getElementsByClassName("like-count")[0]
+				// console.log(likeCount);
+				likeCount.textContent = data.likes;
+			}
+		},
+		"Попробуйте авторизоваться заново"
+	)
+}
+
 // Функция вызова уведомления
 function showTemporaryNotification(message, duration = 3000) {
 	const notification = document.createElement('div');
@@ -182,14 +220,15 @@ function changeBody(authorization = true) {
 		})
 		.then(html => {
 			document.body.innerHTML = html;
-			setTimeout(init, 1000);
+			setTimeout(window.init, 1000);
 		})
 		.catch(error => {
+			deleteCookie('authToken');
 			changeBody(false);
 		});
 }
 
-function init() {
+window.init = function init() {
 	var registerNameInput = document.getElementById("registerName");
 	registerNameInput.addEventListener("input", checkNameAvailability);
 
