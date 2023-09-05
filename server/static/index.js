@@ -1,4 +1,4 @@
-authToken = ""
+authToken = "";
 
 // Функция открытия модального окна
 function openModal() {
@@ -86,7 +86,7 @@ function register() {
 		return;
 	}
 
-	fetch_template('/auth/register', true,
+	fetch_template('/auth/create', true,
 		{
 			method: 'POST',
 			headers: {
@@ -161,12 +161,151 @@ function toggleLike(postId) {
 					likeButton.classList.add("not-liked");
 				}
 				var likeCount = postElement.getElementsByClassName("like-count")[0]
-				// console.log(likeCount);
 				likeCount.textContent = data.likes;
 			}
 		},
 		"Попробуйте авторизоваться заново"
 	)
+}
+
+// Функция для добавления выбранных файлов и их превью в список файлов
+function handleFiles() {
+    const fileList = document.getElementById("fileList");
+    fileList.innerHTML = ""; // Очищаем список файлов
+    selectedFiles = []; // Очищаем массив выбранных файлов
+
+    const fileInput = document.getElementById("fileInput");
+    const files = fileInput.files;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        selectedFiles.push(file); // Добавляем файл в массив выбранных файлов
+
+        const fileItem = document.createElement("div");
+        fileItem.classList.add("file-preview");
+
+        const fileImage = document.createElement("img");
+        fileImage.src = URL.createObjectURL(file);
+
+        const fileInfo = document.createElement("div");
+        fileInfo.classList.add("file-info");
+
+        const fileName = document.createElement("p");
+        fileName.classList.add("file-name");
+        fileName.textContent = file.name;
+
+        const removeButton = document.createElement("button");
+        removeButton.textContent = "Удалить";
+        removeButton.addEventListener("click", () => {
+            // Удаляем файл из массива выбранных файлов
+            selectedFiles.splice(selectedFiles.indexOf(file), 1);
+
+            // Удаляем файл из списка в HTML
+            fileList.removeChild(fileItem);
+
+            // Обновляем счетчик файлов на странице
+            updateFileCounter();
+        });
+
+        fileInfo.appendChild(fileName);
+        fileItem.appendChild(fileImage);
+        fileItem.appendChild(fileInfo);
+        fileItem.appendChild(removeButton);
+        fileList.appendChild(fileItem);
+    }
+}
+
+// Функция для отправки поста
+function submitPost(id = 0) {
+	const postTheme = document.getElementById("postTheme").value;
+	const postContent = document.getElementById("postContent").value;
+
+	// Получите выбранные файлы и обработайте их по необходимости
+	const fileInput = document.getElementById("fileInput");
+	const files = fileInput.files;
+
+
+	if (postTheme.trim() === "") {
+		showTemporaryNotification("Тема не должна быть пустой");
+		return;
+	}
+	var postLines = postContent.split(/\n+/).filter((line) => line.trim() !== "");
+	if (postLines.length == 0) {
+		showTemporaryNotification("Содержимое поста не может быть пустым");
+		return;
+	}
+
+
+	var promices = [];
+	for (var i = 0; i < files.length; i++) {
+		var formData = new FormData()
+		formData.set("file", files[i]);
+		promices.push(
+			fetch('/file/upload',
+				{
+					method: "POST",
+					headers: {
+						"Authorization": `Bearer ${authToken}`
+					},
+					body: formData
+				}).then(
+					response => {
+						if (!response.ok) {
+							response.text().then(errorMessage => {
+								showTemporaryNotification(errorMessage);
+							});
+						}
+						return response.json();
+					}
+				))
+
+	}
+
+	Promise.allSettled(promices).then(jsons => {
+		var uploadedFilesUuids = [];
+		for (const json of jsons) {
+			if (json) {
+				uploadedFilesUuids.push(json.value.uuid);
+				console.log(json.value.uuid);
+			}
+		}
+		console.log(uploadedFilesUuids);
+		fetch_template("/api/save", true,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${authToken}`
+				},
+				body: JSON.stringify({
+					id: id,
+					theme: postTheme,
+					content: postLines,
+					filenames: uploadedFilesUuids
+				})
+			}, data => {
+				location.reload();
+			});
+	})
+}
+
+function confirmDelete(postId) {
+	const confirmDelete = window.confirm("Вы уверены, что хотите удалить этот пост?");
+	if (confirmDelete) {
+		fetch_template(`/api/delete/${postId}`, false,
+			{
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authToken}`
+				}
+			},
+			data => {
+				const post = document.getElementById(`post-${postId}`);
+				post.parentNode.removeChild(post);
+				showTemporaryNotification("Пост успешно удалён");
+			}
+		);
+	}
 }
 
 // Функция вызова уведомления
@@ -187,7 +326,7 @@ function showTemporaryNotification(message, duration = 3000) {
 function setCookie(name, value, days) {
 	const expires = new Date();
 	expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-	document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+	document.cookie = `${name} = ${value}; expires = ${expires.toUTCString()}; path = /`;
 }
 
 // Функция загрузки cookie
@@ -236,4 +375,10 @@ window.init = function init() {
 	const notificationContainer = document.getElementById('notificationContainer');
 
 	authToken = getCookie('authToken');
+
+	// Получение элемента input типа file
+	const fileInput = document.getElementById("fileInput");
+
+	// Добавление обработчика события change для элемента fileInput
+	fileInput.addEventListener("change", handleFiles);
 }
