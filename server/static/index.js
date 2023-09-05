@@ -196,6 +196,7 @@ function handleFiles() {
 
         const removeButton = document.createElement("button");
         removeButton.textContent = "Удалить";
+		removeButton.style.display = "none";
         removeButton.addEventListener("click", () => {
             // Удаляем файл из массива выбранных файлов
             selectedFiles.splice(selectedFiles.indexOf(file), 1);
