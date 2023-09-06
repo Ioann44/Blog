@@ -2,7 +2,7 @@ from typing import Tuple
 from sqlalchemy.exc import IntegrityError
 from . import entities
 
-from ..common.base_class import Session
+from ..common.session_and_env import Session
 
 
 def create_user(user: entities.User) -> Tuple[bool, int]:

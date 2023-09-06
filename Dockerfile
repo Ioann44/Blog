@@ -2,11 +2,9 @@ FROM python:3.10
 
 WORKDIR /app
 
-COPY server/requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY server/ .
+COPY server/ server/
+RUN pip install -r server/requirements.txt
 
 COPY .env .
 
-CMD ["python", "app.py"]
+CMD ["python", "-u", "server/app.py"]

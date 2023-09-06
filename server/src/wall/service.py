@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 from . import entities
 from ..file import entities as file_entities
 from ..file import service as file_service
-from ..common.base_class import Session
+from ..common.session_and_env import Session
 
 
 def get_all(user_id: int = 0) -> List[Tuple[entities.Post, bool]]:

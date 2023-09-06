@@ -4,7 +4,7 @@ from sqlalchemy import event
 from sqlalchemy.orm import joinedload
 
 from . import entities
-from ..common.base_class import Session, env
+from ..common.session_and_env import Session, env
 
 
 def __create_db_record(file: entities.File) -> entities.File | None:
@@ -30,6 +30,7 @@ def save_file(file) -> entities.File | None:
     parent_path = env["UPLOADS_RESOLVED_PATH"]
     assert parent_path is not None, "Unresolved uploads path"
     full_path_with_name = os.path.join(parent_path, file.filename)
+    
     file.save(full_path_with_name)
 
     try:
@@ -71,7 +72,7 @@ def delete_unused_files():
         unused_files = session.query(entities.File).filter(entities.File.post_id.is_(None)).all()
         # print(f"{len(unused_files)} unused files deleted")
         for file in unused_files:
-            delete_files(file.name) # type: ignore
+            delete_files(file.name)  # type: ignore
             session.delete(file)
         session.commit()
 

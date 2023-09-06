@@ -1,3 +1,4 @@
+import os
 from dotenv import dotenv_values
 import pathlib
 
@@ -5,12 +6,18 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
+# need import all the enitities before initializin db usin service_and_env import
+import src.auth.entities as _
+import src.file.entities as _
+import src.wall.entities as _
+
 from src.wall.client_controller import index
 from src.wall.api_controller import index_api
 from src.auth.controller import auth
 from src.file.controller import file
 
 import src.common.after_db_create as _
+from src.common.session_and_env import env
 
 env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath(".env").resolve())
 app = Flask(__name__)
