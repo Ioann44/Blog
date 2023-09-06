@@ -76,10 +76,18 @@ function login() {
 
 // Функция для отправки запроса на регистрацию с проверкой пароля
 function register() {
-	var registerName = document.getElementById("registerName").value;
+	var registerName = document.getElementById("registerName").value.trim();
 	var registerPassword = document.getElementById("registerPassword").value;
 	var confirmPassword = document.getElementById("confirmPassword").value;
 
+	if (registerName === "") {
+		showTemporaryNotification("Имя не может быть пустым");
+		return;
+	}
+	if (registerPassword.length < 4) {
+		showTemporaryNotification("Пароль не может быть короче 4 символов");
+		return;
+	}
 	// Проверьте, совпадают ли пароли
 	if (registerPassword !== confirmPassword) {
 		showTemporaryNotification("Пароли не совпадают");
@@ -121,14 +129,15 @@ function checkNameAvailability() {
 	var registerName = document.getElementById("registerName").value;
 	var nameAvailability = document.getElementById("nameAvailability");
 
-	if (!registerName) {
+	if (registerName.trim() === "") {
+		nameAvailability.innerHTML = "";
 		return;
 	}
 
-	const url = `/auth/check_name/${registerName}`;
+	const url = `/auth/check_name/${registerName.trim()}`;
 
 	fetch_template(url, false, { method: "GET" }, data => {
-		if (data) {
+		if (data === "1") {
 			nameAvailability.innerHTML = "Имя доступно";
 		} else {
 			nameAvailability.innerHTML = "Имя уже занято";
@@ -216,7 +225,7 @@ function handleFiles() {
 	}
 }
 
-function uploadPost(postTheme, postContent, files, id = 0) {
+function uploadPost(postTheme, postContent, files, id = 0, additional_filenames = []) {
 	if (postTheme.trim() === "") {
 		showTemporaryNotification("Тема не должна быть пустой");
 		return;
@@ -259,6 +268,7 @@ function uploadPost(postTheme, postContent, files, id = 0) {
 				uploadedFilesUuids.push(json.value.uuid);
 			}
 		}
+		uploadedFilesUuids.push(...additional_filenames);
 		fetch_template("/api/save", true,
 			{
 				method: "POST",
@@ -309,35 +319,33 @@ function editPost(postId) {
 	}
 	document.getElementById("editPostContent").value = contentArray.join("\n");
 
+	// Перебор всех уже имеющихся картинок
+	var postImages = post.querySelectorAll('.post-image');
+	var sourceImagesFiles = [];
+	postImages.forEach(function (postImage) {
+		var imageSrc = postImage.getAttribute('src');
+		sourceImagesFiles.push(
+			{
+				url: imageSrc,
+				name: imageSrc.match(/\/([^/]+)$/)[1]
+			}
+		);
+	});
+	setEditModalFilePreview(sourceImagesFiles);
+
 	// Обработчик изменения файла для input type="file"
 	document.getElementById("editFileInput").addEventListener("change", function () {
+		sourceImagesFiles = [];
 		var fileInput = document.getElementById("editFileInput");
 		var fileList = document.getElementById("editFileList");
 
 		fileList.innerHTML = "";
-
-		for (var i = 0; i < fileInput.files.length; i++) {
-			var file = fileInput.files[i];
-
-			// Создайте элемент для отображения выбранных файлов
-			var filePreview = document.createElement("div");
-			filePreview.className = "file-preview";
-
-			var fileImage = document.createElement("img");
-			fileImage.src = URL.createObjectURL(file);
-			filePreview.appendChild(fileImage);
-
-			var fileInfo = document.createElement("div");
-			fileInfo.className = "file-info";
-
-			var fileName = document.createElement("p");
-			fileName.className = "file-name";
-			fileName.textContent = file.name;
-			fileInfo.appendChild(fileName);
-
-			filePreview.appendChild(fileInfo);
-			fileList.appendChild(filePreview);
+		var filesUrls = [];
+		for (const file of fileInput.files) {
+			filesUrls.push({ url: URL.createObjectURL(file), name: file.name });
 		}
+
+		setEditModalFilePreview(filesUrls);
 	});
 
 	document.getElementById("saveEditButton").onclick = function () {
@@ -348,8 +356,39 @@ function editPost(postId) {
 		var selectedFiles = document.getElementById("editFileInput").files;
 
 		// Выполните логику обновления данных на сервере и закройте модальное окно
-		uploadPost(updatedTheme, updatedContent, selectedFiles, postId);
+		uploadPost(
+			updatedTheme, updatedContent,
+			selectedFiles, postId,
+			sourceImagesFiles.map(file => file.name)
+		);
 	};
+}
+
+function setEditModalFilePreview(files) {
+	var fileList = document.getElementById("editFileList");
+
+	fileList.innerHTML = "";
+
+	for (const file of files) {
+		// Создайте элемент для отображения выбранных файлов
+		var filePreview = document.createElement("div");
+		filePreview.className = "file-preview";
+
+		var fileImage = document.createElement("img");
+		fileImage.src = file.url;
+		filePreview.appendChild(fileImage);
+
+		var fileInfo = document.createElement("div");
+		fileInfo.className = "file-info";
+
+		var fileName = document.createElement("p");
+		fileName.className = "file-name";
+		fileName.textContent = file.name;
+		fileInfo.appendChild(fileName);
+
+		filePreview.appendChild(fileInfo);
+		fileList.appendChild(filePreview);
+	}
 }
 
 function closeEditModal() {

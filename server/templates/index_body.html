@@ -121,7 +121,7 @@
         </div>
         <div>
             {% for file_url in post["files"] %}
-            <img src="{{ file_url }}" alt="Изображение поста">
+            <img class="post-image" src="{{ file_url }}" alt="Изображение поста">
             {% endfor %}
         </div>
         {% if user_name == post['author'] %}
