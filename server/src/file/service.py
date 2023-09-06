@@ -52,13 +52,28 @@ def delete_files(*filenames: str):
     assert parent_path is not None, "Unresolved uploads path"
     for fname in filenames:
         full_path_with_name = os.path.join(parent_path, fname)
-        os.remove(full_path_with_name)
+        try:
+            os.remove(full_path_with_name)
+        except Exception:
+            # somehow file already deleted
+            pass
 
 
 def check_file_exists(name: str) -> bool:
     with Session() as session:
         file = session.query(entities.File).filter_by(name=name).first()
         return file is not None
+
+
+def delete_unused_files():
+    # may be covered with apscheduler
+    with Session() as session:
+        unused_files = session.query(entities.File).filter(entities.File.post_id.is_(None)).all()
+        # print(f"{len(unused_files)} unused files deleted")
+        for file in unused_files:
+            delete_files(file.name) # type: ignore
+            session.delete(file)
+        session.commit()
 
 
 # # delete all

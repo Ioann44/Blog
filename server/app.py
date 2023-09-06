@@ -10,6 +10,8 @@ from src.wall.api_controller import index_api
 from src.auth.controller import auth
 from src.file.controller import file
 
+import src.common.after_db_create as _
+
 env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = env["JWT_KEY"]
