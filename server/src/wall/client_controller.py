@@ -1,5 +1,7 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+import pytz
 
 from . import service
 from ..auth import service as auth_service
@@ -34,6 +36,9 @@ def get_all():
     else:
         print(f"Not authorized")
 
+    # set timezone
+    desired_timezone = pytz.timezone("Etc/GMT+4")
+
     return render_template(
         "index_body.html",
         posts=[
@@ -43,7 +48,7 @@ def get_all():
                 "theme": p.theme,
                 "content": p.content,
                 "likes": p.likes,
-                "date": p.date,
+                "date": p.date.astimezone(desired_timezone).strftime("%Y-%m-%d %H:%M"),
                 "is_liked": is_liked,
                 "files": [f"/file/{file.name}" for file in p.files],
             }
