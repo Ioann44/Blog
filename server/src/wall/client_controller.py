@@ -37,7 +37,7 @@ def get_all():
         print(f"Not authorized")
 
     # set timezone
-    desired_timezone = pytz.timezone("Etc/GMT+4")
+    desired_timezone = pytz.timezone("Etc/GMT-4")
 
     return render_template(
         "index_body.html",

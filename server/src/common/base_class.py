@@ -11,7 +11,7 @@ def __init():
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
 
-    env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
+    env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath(".env").resolve())
     uploads_path = env["UPLOADS_FOLDER"]
     assert uploads_path is not None, "UPLOADS_FOLDER is not defined"
     env["UPLOADS_RESOLVED_PATH"] = (

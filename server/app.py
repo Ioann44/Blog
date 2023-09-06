@@ -12,7 +12,7 @@ from src.file.controller import file
 
 import src.common.after_db_create as _
 
-env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath("docker/.env").resolve())
+env = dotenv_values(pathlib.Path(__name__).parent.parent.joinpath(".env").resolve())
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = env["JWT_KEY"]
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(env["JWT_ACCESS_TOKEN_EXPIRES"] or 900)
