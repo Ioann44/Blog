@@ -21,9 +21,8 @@ def save():
         "author_id": author_id,
         **{field: json[field] for field in ("theme", "content")},
     }
-
     # trying to update
-    if "id" and json["id"] != 0 in json:
+    if "id" in json and json["id"] != 0:
         try:
             id = int(json["id"])
         except ValueError:
@@ -44,7 +43,6 @@ def save():
     res_filenames = None
     if "filenames" in json:
         try:
-            print(json["filenames"])
             res_filenames = service.change_connected_post(json["filenames"], saved_post.id)  # type: ignore
         except:
             return flask.Response("Post is saved, but files not added: wrong filenames", status=400)

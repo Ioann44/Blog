@@ -257,10 +257,8 @@ function uploadPost(postTheme, postContent, files, id = 0) {
 		for (const json of jsons) {
 			if (json) {
 				uploadedFilesUuids.push(json.value.uuid);
-				console.log(json.value.uuid);
 			}
 		}
-		console.log(uploadedFilesUuids);
 		fetch_template("/api/save", true,
 			{
 				method: "POST",
@@ -304,19 +302,18 @@ function editPost(postId) {
 	var contentArray = [];
 	var postContentElement = post.getElementsByClassName("post-content")[0];
 	// Перебрать все элементы <p> внутри "post-content"
-	console.log(postContentElement);
 	var paragraphElements = postContentElement.getElementsByTagName('p');
 	for (const paragraph of paragraphElements) {
 		// Извлечь текст из элемента <p> и добавить его в массив
 		contentArray.push(paragraph.textContent);
 	}
 	document.getElementById("editPostContent").value = contentArray.join("\n");
-	
+
 	// Обработчик изменения файла для input type="file"
 	document.getElementById("editFileInput").addEventListener("change", function () {
 		var fileInput = document.getElementById("editFileInput");
 		var fileList = document.getElementById("editFileList");
-		
+
 		fileList.innerHTML = "";
 
 		for (var i = 0; i < fileInput.files.length; i++) {
