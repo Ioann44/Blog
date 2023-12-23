@@ -9,14 +9,34 @@ services:
       POSTGRES_PASSWORD: $DATABASE_PASSWORD
       POSTGRES_USER: $DATABASE_USER
       POSTGRES_DB: $DATABASE_DB
-    volumes:
-      - ${DATABASE_INIT_SCRIPTS}:/docker-entrypoint-initdb.d
     ports:
       - $DATABASE_PORT:5432
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-q",
+          "-d",
+          "database",
+          "-U",
+          "user"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   flask-app:
     build: .
     ports:
       - "$PORT:$PORT"
     depends_on:
-      - blog_database
+      blog_database:
+        condition: service_healthy
+
+volumes:
+  database-data:
+    driver: local
+    name: blog-database
