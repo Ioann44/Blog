@@ -32,4 +32,4 @@ app.register_blueprint(auth)
 app.register_blueprint(file)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(env["PORT"] or 5000), debug=bool(env["DEBUG"]))
+    app.run(host="0.0.0.0", port=3000, debug=bool(env["DEBUG"]))
