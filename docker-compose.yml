@@ -12,16 +12,7 @@ services:
     volumes:
       - database-data:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD",
-          "pg_isready",
-          "-q",
-          "-d",
-          "database",
-          "-U",
-          "user"
-        ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "database", "-U", "user" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,7 +22,7 @@ services:
     build: .
     image: blog-flask-app
     ports:
-      - "$PORT:3000"
+      - "172.17.0.1:$PORT:3000"
     depends_on:
       blog_database:
         condition: service_healthy
